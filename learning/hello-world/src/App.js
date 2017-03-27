@@ -5,21 +5,29 @@ import $ from 'jquery';
 class Game extends Component {
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      numberOfStars: this.generateNumberOfStars(),
-      selectedNumbers: [], correct: null,
-      usedNumbers: [],
-      numberOfTries: 5,
-      doneStatus: "Game Over!"
-    };
+
+    var maxNumberOfStars = 9;
+
     this.selectNumber = this.selectNumber.bind(this);
     this.unselectNumber = this.unselectNumber.bind(this);
     this.checkAnswer = this.checkAnswer.bind(this);
     this.acceptAnswer = this.acceptAnswer.bind(this);
     this.redrawStars = this.redrawStars.bind(this);
+    this.generateNumberOfStars = this.generateNumberOfStars.bind(this);
+
+    this.state = {
+      maxNumberOfStars: maxNumberOfStars,
+      numberOfStars: this.generateNumberOfStars(maxNumberOfStars),
+      selectedNumbers: [], correct: null,
+      usedNumbers: [],
+      numberOfTries: 5,
+      doneStatus: "Game Over!",
+      gameOver: false
+    };
+
   }
-  generateNumberOfStars() {
-    return (Math.floor(Math.random() * 9) + 1);
+  generateNumberOfStars(maxNumberOfStars) {
+    return (Math.floor(Math.random() * (maxNumberOfStars ? maxNumberOfStars : this.state.maxNumberOfStars)) + 1);
   }
   redrawStars() {
     if (this.state.numberOfTries > 0) {
@@ -29,6 +37,12 @@ class Game extends Component {
         numberOfTries: reducedTries,
         correct: null,
         selectedNumbers: []
+      });
+    }
+    else {
+      this.setState({
+        gameOver: true,
+        doneStatus: "You Lost"
       });
     }
   }
@@ -54,11 +68,16 @@ class Game extends Component {
   }
   acceptAnswer() {
     var usedNumbers = this.state.usedNumbers.concat(this.state.selectedNumbers);
+    var gameOver = (usedNumbers.length === this.state.maxNumberOfStars)
+    if (gameOver)
+      this.state.doneStatus = "You Won!!"
     this.setState({
       numberOfStars: this.generateNumberOfStars(),
       usedNumbers: usedNumbers,
       selectedNumbers: [],
-      correct: null
+      correct: null,
+      gameOver: gameOver,
+      doneStatus: this.state.doneStatus
     })
   }
   sumOfSelectedValues() {
@@ -78,12 +97,17 @@ class Game extends Component {
         <hr />
         <div className="clearfix">
           <StarsFrame numberOfStars={numberOfStars} />
+          <DoneGame doneStatus={this.state.doneStatus}
+            gameOver={this.state.gameOver}
+          />
           <ButtonsFrame selectedNumbers={selectedNumbers}
             correct={currect}
             checkAnswer={this.checkAnswer}
             acceptAnswer={this.acceptAnswer}
             redrawStars={this.redrawStars}
             numberOfTries={this.state.numberOfTries}
+            gameOver={this.state.gameOver}
+
           />
           <AnswerFrame selectedNumbers={selectedNumbers}
             unselectNumber={this.unselectNumber} />
@@ -93,7 +117,6 @@ class Game extends Component {
           clickNumber={this.selectNumber}
           usedNumbers={usedNumbers}
         />
-        <DoneGame doneStatus={this.state.doneStatus}/>
       </div>
     );
   }
@@ -105,7 +128,7 @@ class DoneGame extends Component {
   }
   render() {
     return (
-      <div className="well text-center">
+      <div className="well text-center" id="done-game" style={{display:this.props.gameOver ? 'block' : 'none'}}>
         <h2>{this.props.doneStatus}</h2>
       </div>
     );
@@ -160,13 +183,13 @@ class ButtonsFrame extends Component {
         break;
     }
     return (
-      <div id="button-frame">
+      <div id="button-frame" style={{display: this.props.gameOver ? 'none' : 'block'}}>
         {button}
         <br />
         <button className="btn btn-warning btn-xs"
           onClick={this.props.redrawStars}
           disabled={this.props.numberOfTries <= 0}
-          >
+        >
           <span className="glyphicon glyphicon-refresh">{this.props.numberOfTries}</span>
         </button>
       </div>
