@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import EmployeeList from './components/EmployeeList';
 
-const App = ()=> {
+const App = () => {
   return (
-    <div>Hello there!</div>
-  )
-}
+    <EmployeeList />
+  );
+};
 
-Meteor.startup(()=> {
-  ReactDOM.render(<App/>, document.getElementById("appContainer"));
-})
+Meteor.startup(() => {
+  ReactDOM.render(<App />, document.getElementById("appContainer"));
+});
