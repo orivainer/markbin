@@ -8,7 +8,10 @@ class App extends React.Component {
 
     render() {
         return (
-            <Header/>
+            <div>
+                <Header />
+                {this.props.children}
+            </div>
         );
     }
 }
